@@ -17,4 +17,36 @@
 
 package com.example.android.marsrealestate.network
 
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
+import retrofit2.http.GET
+
+//response of server us JSON
 private const val BASE_URL = "https://mars.udacity.com/"
+
+//WHAT IS MOSHI CONVERTER?
+private val moshi = Moshi.Builder()
+    .add(KotlinJsonAdapterFactory())
+    .build()
+
+//EXPLAIN THIS LINE?
+private val retrofit = Retrofit.Builder().addConverterFactory(MoshiConverterFactory.create(moshi))
+                        .baseUrl(BASE_URL).build()
+
+interface MarsApiService{
+    @GET("realestate")
+    fun getAllProperties() : Call<String>
+}
+
+//public object to expose service to rest of the app
+//WHY BY LAZY RESOLVES ERROR?
+object MarsApi{
+    val retrofitService : MarsApiService by lazy{
+        //single api object (similar to DAO in Room) uses retrofit to implement interface
+        retrofit.create(MarsApiService::class.java)
+    }
+}
