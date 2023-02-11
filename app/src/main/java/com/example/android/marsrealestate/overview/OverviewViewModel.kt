@@ -21,28 +21,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-/**
- * The [ViewModel] that is attached to the [OverviewFragment].
- */
 class OverviewViewModel : ViewModel() {
 
-    // The internal MutableLiveData String that stores the status of the most recent request
-    private val _response = MutableLiveData<String>()
 
-    // The external immutable LiveData for the request status String
+    private val _response = MutableLiveData<String>()
     val response: LiveData<String>
         get() = _response
 
-    /**
-     * Call getMarsRealEstateProperties() on init so we can display status immediately.
-     */
+    //view model initialization to display data via initializing live data
     init {
         getMarsRealEstateProperties()
     }
 
-    /**
-     * Sets the value of the status LiveData to the Mars API status.
-     */
+    //initializes live data of UI
     private fun getMarsRealEstateProperties() {
         _response.value = "Set the Mars API Response here!"
     }

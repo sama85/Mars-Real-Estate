@@ -24,39 +24,31 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.android.marsrealestate.R
 import com.example.android.marsrealestate.databinding.FragmentOverviewBinding
 
-/**
- * This fragment shows the the status of the Mars real-estate web services transaction.
- */
 class OverviewFragment : Fragment() {
 
-    /**
-     * Lazily initialize our [OverviewViewModel].
-     */
+    //WHY LAZY INIT?
     private val viewModel: OverviewViewModel by lazy {
         ViewModelProvider(this).get(OverviewViewModel::class.java)
     }
 
-    /**
-     * Inflates the layout with Data Binding, sets its lifecycle owner to the OverviewFragment
-     * to enable Data Binding to observe LiveData, and sets up the RecyclerView with an adapter.
-     */
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val binding = FragmentOverviewBinding.inflate(inflater)
 
+        // Data binding binds live data to views and observes the data and updates UI/views accordingly
         // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
+        // and updates UI accordingly
         binding.lifecycleOwner = this
 
-        // Giving the binding access to the OverviewViewModel
+        // Giving the binding access to the OverviewViewModel which holds ui data
         binding.viewModel = viewModel
 
         setHasOptionsMenu(true)
         return binding.root
     }
 
-    /**
-     * Inflates the overflow menu that contains filtering options.
-     */
+    //Inflates the overflow menu that contains filtering options.
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.overflow_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
