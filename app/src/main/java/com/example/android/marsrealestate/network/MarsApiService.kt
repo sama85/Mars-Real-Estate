@@ -22,6 +22,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.create
 import retrofit2.http.GET
 
@@ -39,14 +40,16 @@ private val retrofit = Retrofit.Builder().addConverterFactory(MoshiConverterFact
 
 interface MarsApiService{
     @GET("realestate")
-    fun getAllProperties() : Call<String>
+    fun getAllProperties() : Call<List<MarsProperty>>
 }
 
 //public object to expose service to rest of the app
 //WHY BY LAZY RESOLVES ERROR?
+
+/*           A Singleton Pattern            */
 object MarsApi{
+    //single object (similar to DAO in Room) uses retrofit to implement api interface
     val retrofitService : MarsApiService by lazy{
-        //single api object (similar to DAO in Room) uses retrofit to implement interface
         retrofit.create(MarsApiService::class.java)
     }
 }

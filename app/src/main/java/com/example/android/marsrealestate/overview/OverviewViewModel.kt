@@ -20,6 +20,11 @@ package com.example.android.marsrealestate.overview
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.android.marsrealestate.network.MarsApi
+import com.example.android.marsrealestate.network.MarsProperty
+import retrofit2.Call
+import retrofit2.Response
+import javax.security.auth.callback.Callback
 
 class OverviewViewModel : ViewModel() {
 
@@ -35,6 +40,22 @@ class OverviewViewModel : ViewModel() {
 
     //initializes live data of UI
     private fun getMarsRealEstateProperties() {
-        _response.value = "Set the Mars API Response here!"
+        /*
+            1. all retrofit requests are wrapped into a call object, each yields its own http request and response
+            2. call interface provides 2 method to make http request:
+                execute() -> synchronous, network http request runs on main thread (UI blocking)
+                enqueue(callback<T>) -> asynchronous, network http request runs on a background thread,
+                                        UI non-blocking, runs call back methods (response, failure) in main thread
+        */
+        MarsApi.retrofitService.getAllProperties().enqueue(object : retrofit2.Callback<List<MarsProperty>> {
+            override fun onResponse(call: Call<List<MarsProperty>>, response: Response<List<MarsProperty>>) {
+                _response.value = "Success! ${response.body()?.size} Mars properties retrieved"
+            }
+
+            override fun onFailure(call: Call <List<MarsProperty>>, t: Throwable) {
+                _response.value = "failure " + t.message
+            }
+
+        })
     }
 }
