@@ -38,14 +38,14 @@ private val moshi = Moshi.Builder()
 
 private val retrofit = Retrofit.Builder().addConverterFactory(MoshiConverterFactory.create(moshi))
      //deprecated and should use suspend function in api interface
-    .addCallAdapterFactory(CoroutineCallAdapterFactory())
+    //.addCallAdapterFactory(CoroutineCallAdapterFactory())
     .baseUrl(BASE_URL).build()
 
 interface MarsApiService {
     //async coroutines return deferred object with result -> call suspend func await
     //retrofit implement services using async coroutines that run in background thread and returns deferred result
     @GET("realestate")
-    fun getAllProperties(): Deferred<List<MarsProperty>>
+    suspend fun getAllProperties(): List<MarsProperty>
 }
 
 //public object to expose service to rest of the app

@@ -22,10 +22,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.android.marsrealestate.network.MarsApi
 import com.example.android.marsrealestate.network.MarsProperty
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import retrofit2.Call
 import retrofit2.Response
 import java.lang.Exception
@@ -56,25 +53,39 @@ class OverviewViewModel : ViewModel() {
                 enqueue(callback<T>) -> asynchronous, network http request runs on a background thread,
                                         UI non-blocking, runs call back methods (response, failure) in main thread
         */
-        /*
-        MarsApi.retrofitService.getAllProperties().enqueue(object : retrofit2.Callback<List<MarsProperty>> {
-            override fun onResponse(call: Call<List<MarsProperty>>, response: Response<List<MarsProperty>>) {
-                _response.value = "Success! ${response.body()?.size} Mars properties retrieved"
-            }
 
-            override fun onFailure(call: Call <List<MarsProperty>>, t: Throwable) {
-                _response.value = "failure " + t.message
-            }
-         */
+        /**                   RETROFIT WITH CALL IMPLEMENTATION                          */
+//        MarsApi.retrofitService.getAllProperties().enqueue(object : retrofit2.Callback<List<MarsProperty>> {
+//            override fun onResponse(call: Call<List<MarsProperty>>, response: Response<List<MarsProperty>>) {
+//                _response.value = "Success! ${response.body()?.size} Mars properties retrieved"
+//            }
+//
+//            override fun onFailure(call: Call <List<MarsProperty>>, t: Throwable) {
+//                _response.value = "failure " + t.message
+//            }
+
+        /**             RETROFIT INTEGRATION WITH COROUTINE AND DEFERRED IMPLEMENTATION [deprecated]           */
+//        coroutineScope.launch {
+//            val propertiesDeferred = MarsApi.retrofitService.getAllProperties()
+//            try {
+//                val propertiesList = propertiesDeferred.await()
+//                _response.value = "Success! ${propertiesList.size} properties retrieved"
+//            } catch (e: Exception) {
+//                _response.value = "Failure ${e.message}"
+//            }
+//        }
+
+
+        /**                 RETROFIT INTEGRATION WITH COROUTINE AND SUSPEND [latest]         */
         coroutineScope.launch {
-            val propertiesDeferred = MarsApi.retrofitService.getAllProperties()
             try {
-                val propertiesList = propertiesDeferred.await()
-                _response.value = "Success! ${propertiesList.size} properties retrieved"
+                _response.value = withContext(Dispatchers.IO) {
+                    val propertiesList = MarsApi.retrofitService.getAllProperties()
+                    "success! ${propertiesList.size} properties retrieved "
+                }!!
             } catch (e: Exception) {
                 _response.value = "Failure ${e.message}"
             }
-
         }
     }
 
