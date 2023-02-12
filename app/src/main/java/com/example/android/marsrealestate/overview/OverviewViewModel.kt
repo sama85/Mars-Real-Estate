@@ -22,9 +22,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.android.marsrealestate.network.MarsApi
 import com.example.android.marsrealestate.network.MarsProperty
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Response
-import javax.security.auth.callback.Callback
+import java.lang.Exception
 
 class OverviewViewModel : ViewModel() {
 
@@ -32,6 +36,11 @@ class OverviewViewModel : ViewModel() {
     private val _response = MutableLiveData<String>()
     val response: LiveData<String>
         get() = _response
+
+    private val viewModelJob = Job()
+
+    //use job to define scope
+    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     //view model initialization to display data via initializing live data
     init {
@@ -47,6 +56,7 @@ class OverviewViewModel : ViewModel() {
                 enqueue(callback<T>) -> asynchronous, network http request runs on a background thread,
                                         UI non-blocking, runs call back methods (response, failure) in main thread
         */
+        /*
         MarsApi.retrofitService.getAllProperties().enqueue(object : retrofit2.Callback<List<MarsProperty>> {
             override fun onResponse(call: Call<List<MarsProperty>>, response: Response<List<MarsProperty>>) {
                 _response.value = "Success! ${response.body()?.size} Mars properties retrieved"
@@ -55,7 +65,21 @@ class OverviewViewModel : ViewModel() {
             override fun onFailure(call: Call <List<MarsProperty>>, t: Throwable) {
                 _response.value = "failure " + t.message
             }
+         */
+        coroutineScope.launch {
+            val propertiesDeferred = MarsApi.retrofitService.getAllProperties()
+            try {
+                val propertiesList = propertiesDeferred.await()
+                _response.value = "Success! ${propertiesList.size} properties retrieved"
+            } catch (e: Exception) {
+                _response.value = "Failure ${e.message}"
+            }
 
-        })
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
     }
 }

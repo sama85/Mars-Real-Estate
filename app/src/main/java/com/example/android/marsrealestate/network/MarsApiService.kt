@@ -17,8 +17,10 @@
 
 package com.example.android.marsrealestate.network
 
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.Deferred
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -34,22 +36,25 @@ private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
     .build()
 
-//EXPLAIN THIS LINE?
 private val retrofit = Retrofit.Builder().addConverterFactory(MoshiConverterFactory.create(moshi))
-                        .baseUrl(BASE_URL).build()
+     //deprecated and should use suspend function in api interface
+    .addCallAdapterFactory(CoroutineCallAdapterFactory())
+    .baseUrl(BASE_URL).build()
 
-interface MarsApiService{
+interface MarsApiService {
+    //async coroutines return deferred object with result -> call suspend func await
+    //retrofit implement services using async coroutines that run in background thread and returns deferred result
     @GET("realestate")
-    fun getAllProperties() : Call<List<MarsProperty>>
+    fun getAllProperties(): Deferred<List<MarsProperty>>
 }
 
 //public object to expose service to rest of the app
 //WHY BY LAZY RESOLVES ERROR?
 
 /*           A Singleton Pattern            */
-object MarsApi{
+object MarsApi {
     //single object (similar to DAO in Room) uses retrofit to implement api interface
-    val retrofitService : MarsApiService by lazy{
+    val retrofitService: MarsApiService by lazy {
         retrofit.create(MarsApiService::class.java)
     }
 }
