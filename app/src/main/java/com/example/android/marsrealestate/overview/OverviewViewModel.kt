@@ -17,7 +17,6 @@
 
 package com.example.android.marsrealestate.overview
 
-import android.widget.ListView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -33,9 +32,9 @@ class OverviewViewModel : ViewModel() {
     val status: LiveData<String>
         get() = _status
 
-    private val _property = MutableLiveData<MarsProperty>()
-    val property: LiveData<MarsProperty>
-        get() = _property
+    private val _properties = MutableLiveData<List<MarsProperty>>()
+    val properties: LiveData<List<MarsProperty>>
+        get() = _properties
 
     private val viewModelJob = Job()
 
@@ -85,8 +84,7 @@ class OverviewViewModel : ViewModel() {
             try {
                 withContext(Dispatchers.IO) {
                     val propertiesList = MarsApi.retrofitService.getAllProperties()
-                    if(propertiesList.isNotEmpty())
-                        _property.postValue(propertiesList[0])
+                    _properties.postValue(propertiesList)
                     _status.value = "success! ${propertiesList.size} properties retrieved "
                 }
             } catch (e: Exception) {

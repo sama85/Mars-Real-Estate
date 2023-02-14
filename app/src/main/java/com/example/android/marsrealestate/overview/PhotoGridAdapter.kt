@@ -16,3 +16,75 @@
  */
 
 package com.example.android.marsrealestate.overview
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.core.net.toUri
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.example.android.marsrealestate.R
+import com.example.android.marsrealestate.bindImage
+import com.example.android.marsrealestate.databinding.GridViewItemBinding
+import com.example.android.marsrealestate.network.MarsProperty
+
+class PhotoGridAdapter :
+    androidx.recyclerview.widget.ListAdapter<MarsProperty, PhotoGridAdapter.MarsPropertyViewHolder>(
+        diffCallback
+    ) {
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): PhotoGridAdapter.MarsPropertyViewHolder {
+        return MarsPropertyViewHolder.from(parent)
+    }
+
+    override fun onBindViewHolder(holder: PhotoGridAdapter.MarsPropertyViewHolder, position: Int) {
+        val item = getItem(position)
+        holder.bind(item)
+    }
+
+
+    //View holder with view binding
+    class MarsPropertyViewHolder(val binding: GridViewItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        companion object {
+            fun from(parent: ViewGroup): MarsPropertyViewHolder {
+                val inflater = LayoutInflater.from(parent.context)
+                val binding = GridViewItemBinding.inflate(inflater)
+                return MarsPropertyViewHolder(binding)
+            }
+        }
+
+        fun bind(property: MarsProperty) {
+            val imageUrl = property.imageSrcUrl
+            imageUrl?.let {
+                val imgUri = it.toUri().buildUpon().scheme("https").build()
+                Glide.with(binding.marsImage.context)
+                    .load(imgUri)
+                    //request place holder image from glide to be displayed while img is loading
+                    //and error image when it can't be retrieved
+                    .apply(
+                        RequestOptions()
+                            .placeholder(R.drawable.loading_animation)
+                            .error(R.drawable.ic_broken_image)
+                    )
+                    .into(binding.marsImage)
+            }
+        }
+    }
+
+}
+
+object diffCallback : DiffUtil.ItemCallback<MarsProperty>() {
+    override fun areItemsTheSame(oldItem: MarsProperty, newItem: MarsProperty): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsTheSame(oldItem: MarsProperty, newItem: MarsProperty): Boolean {
+        return oldItem == newItem
+    }
+}

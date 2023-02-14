@@ -20,6 +20,7 @@ package com.example.android.marsrealestate.overview
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
 import com.example.android.marsrealestate.R
@@ -38,7 +39,7 @@ class OverviewFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding = GridViewItemBinding.inflate(inflater)
+        val binding = FragmentOverviewBinding.inflate(inflater)
 
         // Data binding binds live data to views and observes the data and updates UI/views accordingly
         // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
@@ -47,6 +48,13 @@ class OverviewFragment : Fragment() {
 
         // Giving the binding access to the OverviewViewModel which holds ui data
         binding.viewModel = viewModel
+
+        val adapter = PhotoGridAdapter()
+        binding.photosGrid.adapter = adapter
+
+        viewModel.properties.observe(viewLifecycleOwner, Observer{
+            adapter.submitList(it)
+        })
 
         setHasOptionsMenu(true)
         return binding.root
