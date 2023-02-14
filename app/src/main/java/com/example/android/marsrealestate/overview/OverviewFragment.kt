@@ -17,12 +17,14 @@
 
 package com.example.android.marsrealestate.overview
 
+import android.opengl.Visibility
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.android.marsrealestate.R
 import com.example.android.marsrealestate.databinding.FragmentOverviewBinding
 import com.example.android.marsrealestate.databinding.GridViewItemBinding
@@ -54,6 +56,23 @@ class OverviewFragment : Fragment() {
 
         viewModel.properties.observe(viewLifecycleOwner, Observer{
             adapter.submitList(it)
+        })
+
+        //Recycler view is empty when data (properties) is still being fetched from server
+        //image view will take place until data (properties) is fetched
+        //then VH will be created and bind method will use glide to load images from urls in objects
+        viewModel.status.observe(viewLifecycleOwner, Observer {
+            when(it){
+                MarsApiStatus.ERROR -> {
+                    binding.statusImage.visibility = View.VISIBLE
+                    binding.statusImage.setImageResource(R.drawable.ic_connection_error)
+                }
+                MarsApiStatus.LOADING -> {
+                    binding.statusImage.visibility = View.VISIBLE
+                    binding.statusImage.setImageResource(R.drawable.loading_animation)
+                }
+                else -> binding.statusImage.visibility = View.GONE
+            }
         })
 
         setHasOptionsMenu(true)

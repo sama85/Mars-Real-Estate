@@ -25,11 +25,12 @@ import com.example.android.marsrealestate.network.MarsProperty
 import kotlinx.coroutines.*
 import java.lang.Exception
 
+enum class MarsApiStatus {LOADING, DONE, ERROR}
+
 class OverviewViewModel : ViewModel() {
 
-
-    private val _status = MutableLiveData<String>()
-    val status: LiveData<String>
+    private val _status = MutableLiveData<MarsApiStatus>()
+    val status: LiveData<MarsApiStatus>
         get() = _status
 
     private val _properties = MutableLiveData<List<MarsProperty>>()
@@ -83,12 +84,14 @@ class OverviewViewModel : ViewModel() {
         coroutineScope.launch {
             try {
                 withContext(Dispatchers.IO) {
+                    _status.postValue(MarsApiStatus.LOADING)
                     val propertiesList = MarsApi.retrofitService.getAllProperties()
                     _properties.postValue(propertiesList)
-                    _status.value = "success! ${propertiesList.size} properties retrieved "
+                    _status.postValue(MarsApiStatus.DONE)
                 }
             } catch (e: Exception) {
-                _status.value = "Failure ${e.message}"
+                _status.postValue(MarsApiStatus.ERROR)
+                _properties.postValue(ArrayList())
             }
         }
     }
@@ -98,3 +101,5 @@ class OverviewViewModel : ViewModel() {
         viewModelJob.cancel()
     }
 }
+
+
