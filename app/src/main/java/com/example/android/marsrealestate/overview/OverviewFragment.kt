@@ -24,6 +24,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
 import com.example.android.marsrealestate.R
 import com.example.android.marsrealestate.databinding.FragmentOverviewBinding
+import com.example.android.marsrealestate.databinding.GridViewItemBinding
 
 class OverviewFragment : Fragment() {
 
@@ -33,9 +34,11 @@ class OverviewFragment : Fragment() {
         ViewModelProvider(this).get(OverviewViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        val binding = FragmentOverviewBinding.inflate(inflater)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val binding = GridViewItemBinding.inflate(inflater)
 
         // Data binding binds live data to views and observes the data and updates UI/views accordingly
         // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment

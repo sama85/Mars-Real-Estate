@@ -17,27 +17,31 @@
 
 package com.example.android.marsrealestate.overview
 
+import android.widget.ListView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.android.marsrealestate.network.MarsApi
 import com.example.android.marsrealestate.network.MarsProperty
 import kotlinx.coroutines.*
-import retrofit2.Call
-import retrofit2.Response
 import java.lang.Exception
 
 class OverviewViewModel : ViewModel() {
 
 
-    private val _response = MutableLiveData<String>()
-    val response: LiveData<String>
-        get() = _response
+    private val _status = MutableLiveData<String>()
+    val status: LiveData<String>
+        get() = _status
+
+    private val _property = MutableLiveData<MarsProperty>()
+    val property: LiveData<MarsProperty>
+        get() = _property
 
     private val viewModelJob = Job()
 
     //use job to define scope
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+
 
     //view model initialization to display data via initializing live data
     init {
@@ -79,12 +83,14 @@ class OverviewViewModel : ViewModel() {
         /**                 RETROFIT INTEGRATION WITH COROUTINE AND SUSPEND [latest]         */
         coroutineScope.launch {
             try {
-                _response.value = withContext(Dispatchers.IO) {
+                withContext(Dispatchers.IO) {
                     val propertiesList = MarsApi.retrofitService.getAllProperties()
-                    "success! ${propertiesList.size} properties retrieved "
-                }!!
+                    if(propertiesList.isNotEmpty())
+                        _property.postValue(propertiesList[0])
+                    _status.value = "success! ${propertiesList.size} properties retrieved "
+                }
             } catch (e: Exception) {
-                _response.value = "Failure ${e.message}"
+                _status.value = "Failure ${e.message}"
             }
         }
     }
