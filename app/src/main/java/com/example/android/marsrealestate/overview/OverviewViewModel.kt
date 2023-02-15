@@ -37,6 +37,11 @@ class OverviewViewModel : ViewModel() {
     val properties: LiveData<List<MarsProperty>>
         get() = _properties
 
+    //send data that's required to be passed upon navigation
+    private val _navigateToPropertyDetail = MutableLiveData<MarsProperty>()
+    val navigateToPropertyDetail : LiveData<MarsProperty>
+        get() = _navigateToPropertyDetail
+
     private val viewModelJob = Job()
 
     //use job to define scope
@@ -94,6 +99,10 @@ class OverviewViewModel : ViewModel() {
                 _properties.postValue(ArrayList())
             }
         }
+    }
+
+    fun navigateToPropertyDetail(property : MarsProperty){
+        _navigateToPropertyDetail.value = property
     }
 
     override fun onCleared() {

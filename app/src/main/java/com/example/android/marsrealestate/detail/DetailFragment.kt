@@ -21,8 +21,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.example.android.marsrealestate.databinding.FragmentDetailBinding
+import com.example.android.marsrealestate.overview.bind
 
 /**
  * This [Fragment] will show the detailed information about a selected piece of Mars real estate.
@@ -34,7 +37,27 @@ class DetailFragment : Fragment() {
         @Suppress("UNUSED_VARIABLE")
         val application = requireNotNull(activity).application
         val binding = FragmentDetailBinding.inflate(inflater)
+        //for data binding to observe live data and update ui
         binding.lifecycleOwner = this
+
+        //extract passed mars property from overview fragment using safe args
+        val selectedProperty = DetailFragmentArgs.fromBundle(requireArguments()).selectedProperty
+        val viewModelFactory = DetailViewModelFactory(selectedProperty, application)
+        val viewModel = ViewModelProviders.of(this, viewModelFactory).get(DetailViewModel::class.java)
+
+        //display selected property
+        viewModel.selectedProperty.observe(viewLifecycleOwner, Observer{
+            binding.mainPhotoImage.bind(it.imageSrcUrl)
+        })
+
+        viewModel.selectedPropertyPrice.observe(viewLifecycleOwner, Observer {
+            binding.priceValueText.text = it
+        })
+
+        viewModel.selectedPropertyType.observe(viewLifecycleOwner, Observer {
+            binding.propertyTypeText.text = it
+        })
+
         return binding.root
     }
 }

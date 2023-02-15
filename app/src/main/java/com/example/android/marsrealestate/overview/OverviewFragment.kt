@@ -17,22 +17,19 @@
 
 package com.example.android.marsrealestate.overview
 
-import android.opengl.Visibility
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.get
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.navigation.fragment.findNavController
 import com.example.android.marsrealestate.R
 import com.example.android.marsrealestate.databinding.FragmentOverviewBinding
-import com.example.android.marsrealestate.databinding.GridViewItemBinding
+import com.example.android.marsrealestate.network.MarsProperty
 
 class OverviewFragment : Fragment() {
 
-    //WHY LAZY INIT?
-    //WHEN IS VIEW MODEL INITIALIZED UPON FIRST CALL/ACCESS?
+    //similar to lateinit but includes init logic and initializes object when first called/accessed
     private val viewModel: OverviewViewModel by lazy {
         ViewModelProvider(this).get(OverviewViewModel::class.java)
     }
@@ -51,13 +48,6 @@ class OverviewFragment : Fragment() {
         // Giving the binding access to the OverviewViewModel which holds ui data
         binding.viewModel = viewModel
 
-        val adapter = PhotoGridAdapter()
-        binding.photosGrid.adapter = adapter
-
-        viewModel.properties.observe(viewLifecycleOwner, Observer{
-            adapter.submitList(it)
-        })
-
         //Recycler view is empty when data (properties) is still being fetched from server
         //image view will take place until data (properties) is fetched
         //then VH will be created and bind method will use glide to load images from urls in objects
@@ -74,6 +64,27 @@ class OverviewFragment : Fragment() {
                 else -> binding.statusImage.visibility = View.GONE
             }
         })
+
+        val propertyListener = object : MarsPropertyListener{
+            override fun onClick(property: MarsProperty) {
+                viewModel.navigateToPropertyDetail(property)
+            }
+        }
+
+        val adapter = PhotoGridAdapter(propertyListener)
+        binding.photosGrid.adapter = adapter
+
+        viewModel.properties.observe(viewLifecycleOwner, Observer{
+            adapter.submitList(it)
+        })
+
+        viewModel.navigateToPropertyDetail.observe(viewLifecycleOwner, Observer{
+            it?.let {
+                //navigate with selected object
+                this.findNavController().navigate(OverviewFragmentDirections.actionShowDetail(it))
+            }
+        })
+
 
         setHasOptionsMenu(true)
         return binding.root
