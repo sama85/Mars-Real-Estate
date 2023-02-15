@@ -21,6 +21,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.android.marsrealestate.network.MarsApi
+import com.example.android.marsrealestate.network.MarsApiFilter
 import com.example.android.marsrealestate.network.MarsProperty
 import kotlinx.coroutines.*
 import java.lang.Exception
@@ -50,11 +51,11 @@ class OverviewViewModel : ViewModel() {
 
     //view model initialization to display data via initializing live data
     init {
-        getMarsRealEstateProperties()
+        getMarsRealEstateProperties(MarsApiFilter.SHOW_ALL)
     }
 
     //initializes live data of UI
-    private fun getMarsRealEstateProperties() {
+    private fun getMarsRealEstateProperties(filter : MarsApiFilter) {
         /*
             1. all retrofit requests are wrapped into a call object, each yields its own http request and response
             2. call interface provides 2 method to make http request:
@@ -90,7 +91,7 @@ class OverviewViewModel : ViewModel() {
             try {
                 withContext(Dispatchers.IO) {
                     _status.postValue(MarsApiStatus.LOADING)
-                    val propertiesList = MarsApi.retrofitService.getAllProperties()
+                    val propertiesList = MarsApi.retrofitService.getProperties(filter.value)
                     _properties.postValue(propertiesList)
                     _status.postValue(MarsApiStatus.DONE)
                 }
@@ -103,6 +104,10 @@ class OverviewViewModel : ViewModel() {
 
     fun navigateToPropertyDetail(property : MarsProperty){
         _navigateToPropertyDetail.value = property
+    }
+
+    fun updateFilter(filter : MarsApiFilter) {
+        getMarsRealEstateProperties(filter)
     }
 
     override fun onCleared() {

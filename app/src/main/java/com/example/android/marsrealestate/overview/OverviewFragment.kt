@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.android.marsrealestate.R
 import com.example.android.marsrealestate.databinding.FragmentOverviewBinding
+import com.example.android.marsrealestate.network.MarsApiFilter
 import com.example.android.marsrealestate.network.MarsProperty
 
 class OverviewFragment : Fragment() {
@@ -85,7 +86,6 @@ class OverviewFragment : Fragment() {
             }
         })
 
-
         setHasOptionsMenu(true)
         return binding.root
     }
@@ -94,5 +94,16 @@ class OverviewFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.overflow_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    //should update retrieved data from server with given filter
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        viewModel.updateFilter(when(item.itemId){
+            R.id.show_all_menu -> MarsApiFilter.SHOW_ALL
+            R.id.show_buy_menu -> MarsApiFilter.SHOW_BUY
+            else -> MarsApiFilter.SHOW_RENT
+        })
+
+        return true
     }
 }

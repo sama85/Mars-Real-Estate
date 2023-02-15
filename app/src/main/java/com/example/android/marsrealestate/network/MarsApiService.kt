@@ -27,7 +27,13 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.create
 import retrofit2.http.GET
+import retrofit2.http.Query
 
+enum class MarsApiFilter(val value : String){
+    SHOW_ALL("all"),
+    SHOW_RENT("rent"),
+    SHOW_BUY("buy")
+}
 //response of server us JSON
 private const val BASE_URL = "https://mars.udacity.com/"
 
@@ -45,7 +51,8 @@ interface MarsApiService {
     //async coroutines return deferred object with result -> call suspend func await
     //retrofit implement services using async coroutines that run in background thread and returns deferred result
     @GET("realestate")
-    suspend fun getAllProperties(): List<MarsProperty>
+    //pass key value pair of filter as service parameter
+    suspend fun getProperties(@Query("filter") type: String): List<MarsProperty>
 }
 
 //public object to expose service to rest of the app
